@@ -13,5 +13,6 @@ chroot rootdir dpkg -i /tmp/linux-headers-xiaomi-raphael.deb
 chroot rootdir dpkg -i /tmp/firmware-xiaomi-raphael.deb
 rm rootdir/tmp/*-xiaomi-raphael.deb
 
-chroot rootdir dracut --force
+KVER=$(ls rootdir/lib/modules/ | grep sm8150 | sort -V | tail -1)
+chroot rootdir dracut --force --no-hostonly --kver "$KVER"
 echo "[$(date +'%Y-%m-%d %H:%M:%S')] [09] Done"
