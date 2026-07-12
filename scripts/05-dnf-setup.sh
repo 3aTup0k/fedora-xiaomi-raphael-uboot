@@ -49,6 +49,24 @@ gpgcheck=0
 skip_if_unavailable=False
 EOF
 
+cat > rootdir/etc/yum.repos.d/alebastr-sway-extras.repo << EOF
+[alebastr-sway-extras]
+name=alebastr sway-extras
+baseurl=https://download.copr.fedorainfracloud.org/results/alebastr/sway-extras/fedora-\$releasever-$ARCH/
+enabled=1
+gpgcheck=0
+skip_if_unavailable=False
+EOF
+
+cat > rootdir/etc/yum.repos.d/solopasha-hyprland.repo << EOF
+[solopasha-hyprland]
+name=solopasha hyprland
+baseurl=https://download.copr.fedorainfracloud.org/results/solopasha/hyprland/fedora-\$releasever-$ARCH/
+enabled=1
+gpgcheck=0
+skip_if_unavailable=False
+EOF
+
 rm -f rootdir/etc/yum.repos.d/*.rpmsave 2>/dev/null || true
 
 echo "[$(date +'%Y-%m-%d %H:%M:%S')] [05] Done"
