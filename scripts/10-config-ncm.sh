@@ -13,6 +13,7 @@ EOF
 echo "net.ipv4.ip_forward=1" > rootdir/etc/sysctl.d/99-usb-ncm.conf
 chroot rootdir systemctl enable dnsmasq
 
+mkdir -p rootdir/usr/local/sbin
 cat > rootdir/usr/local/sbin/setup-usb-ncm.sh << 'NCM'
 #!/bin/sh
 set -e
