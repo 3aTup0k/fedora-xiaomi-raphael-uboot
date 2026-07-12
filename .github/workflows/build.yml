@@ -1,0 +1,99 @@
+name: Build Fedora for Raphael
+
+on:
+  workflow_dispatch:
+    inputs:
+      system_types:
+        description: 'Types (comma-sep: fedora-gnome,fedora-kde,fedora-phosh)'
+        required: false
+        default: 'fedora-gnome,fedora-kde,fedora-phosh'
+      kernel_version:
+        required: false
+        default: '6.18'
+      fedora_version:
+        required: false
+        default: '42'
+      desktop_env:
+        description: 'For Phosh variant'
+        required: false
+        default: 'phosh'
+  push:
+    branches: [main]
+    paths: ['scripts/**', 'build.sh', 'build-config.sh']
+
+permissions:
+  contents: write
+
+env:
+  KERNEL_REPO: GengWei1997/kernel-deb
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - id: gen
+        run: |
+          TYPES="${{ github.event.inputs.system_types || 'fedora-gnome,fedora-kde,fedora-phosh' }}"
+          KV="${{ github.event.inputs.kernel_version || '6.18' }}"
+          FV="${{ github.event.inputs.fedora_version || '42' }}"
+          DE="${{ github.event.inputs.desktop_env || 'phosh' }}"
+          M="["; F=true
+          IFS=',' read -ra S <<< "$TYPES"
+          for s in "${S[@]}"; do
+            [ "$F" = true ] && F=false || M="$M,"
+            M="$M{\"type\":\"$s\",\"kernel\":\"$KV\",\"fedora\":\"$FV\",\"de\":\"$DE\"}"
+          done
+          M="$M]"
+          echo "matrix=$M" >> $GITHUB_OUTPUT
+
+  build:
+    needs: matrix
+    runs-on: ubuntu-24.04-arm
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.matrix.outputs.matrix) }}
+    env:
+      SYSTEM_TYPE: ${{ matrix.type }}
+      KERNEL_VERSION: ${{ matrix.kernel }}
+      FEDORA_VERSION: ${{ matrix.fedora }}
+      DESKTOP_ENV: ${{ matrix.de }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+
+      - name: Download kernel
+        run: |
+          mkdir -p xiaomi-raphael-debs_${{ env.KERNEL_VERSION }}
+          curl -sL -o xiaomi-raphael-debs_${{ env.KERNEL_VERSION }}/linux-image-xiaomi-raphael.deb \
+            "https://github.com/${{ env.KERNEL_REPO }}/releases/download/kernel-v${{ env.KERNEL_VERSION }}/linux-image-xiaomi-raphael.deb"
+          curl -sL -o xiaomi-raphael-debs_${{ env.KERNEL_VERSION }}/linux-headers-xiaomi-raphael.deb \
+            "https://github.com/${{ env.KERNEL_REPO }}/releases/download/kernel-v${{ env.KERNEL_VERSION }}/linux-headers-xiaomi-raphael.deb"
+          curl -sL -o xiaomi-raphael-debs_${{ env.KERNEL_VERSION }}/firmware-xiaomi-raphael.deb \
+            "https://github.com/${{ env.KERNEL_REPO }}/releases/download/kernel-v${{ env.KERNEL_VERSION }}/firmware-xiaomi-raphael.deb"
+          curl -sL -o xiaomi-k20pro-boot.img \
+            "https://github.com/GengWei1997/kernel-deb/releases/download/v1.0.0/xiaomi-k20pro-boot.img"
+
+      - name: Build
+        run: |
+          chmod +x build.sh
+          sudo FEDORA_VERSION=${{ env.FEDORA_VERSION }} ./build.sh "${{ env.SYSTEM_TYPE }}" "${{ env.KERNEL_VERSION }}" "${{ env.DESKTOP_ENV }}"
+
+      - name: Package
+        run: |
+          D=$(date +'%Y%m%d')
+          F="rootfs-${{ env.SYSTEM_TYPE }}-k${{ env.KERNEL_VERSION }}-f${{ env.FEDORA_VERSION }}-$D"
+          sha256sum rootfs.img > ${F}.sha256
+          zstd -T0 -v rootfs.img -o "${F}.img.zst"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.type }}-${{ matrix.kernel }}
+          path: "*.img.zst *.sha256"
+          retention-days: 7
+
+      - if: always()
+        run: sudo rm -rf rootdir xiaomi-raphael-debs_* xiaomi-k20pro-boot.img rootfs.img 2>/dev/null || true
