@@ -31,6 +31,24 @@ gpgcheck=0
 skip_if_unavailable=False
 EOF
 
+cat > rootdir/etc/yum.repos.d/pocketblue-sm8150.repo << EOF
+[pocketblue-sm8150]
+name=pocketblue sm8150
+baseurl=https://download.copr.fedorainfracloud.org/results/pocketblue/sm8150/fedora-\$releasever-$ARCH/
+enabled=1
+gpgcheck=0
+skip_if_unavailable=False
+EOF
+
+cat > rootdir/etc/yum.repos.d/onesaladleaf-sdm845.repo << EOF
+[onesaladleaf-sdm845]
+name=onesaladleaf sdm845
+baseurl=https://download.copr.fedorainfracloud.org/results/onesaladleaf/sdm845/fedora-\$releasever-$ARCH/
+enabled=1
+gpgcheck=0
+skip_if_unavailable=False
+EOF
+
 rm -f rootdir/etc/yum.repos.d/*.rpmsave 2>/dev/null || true
 
 echo "[$(date +'%Y-%m-%d %H:%M:%S')] [05] Done"

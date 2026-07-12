@@ -33,7 +33,7 @@ get_packages() {
   local system_type="$1"
   local desktop_env="$2"
 
-  base_packages="bash-completion sudo openssh-server nano NetworkManager chrony curl wget glibc-langpack-en tzdata dnsmasq nftables iptables iproute alsa-utils pipewire-pulseaudio pipewire-alsa wireplumber systemd-ukify binutils qrtr pd-mapper rmtfs tqftpserv qbootctl q6voiced"
+  base_packages="bash-completion sudo openssh-server nano NetworkManager chrony curl wget glibc-langpack-en tzdata dnsmasq nftables iptables iproute alsa-utils alsa-ucm-conf-sm8150 pipewire-pulseaudio pipewire-alsa wireplumber systemd-ukify binutils qrtr pd-mapper rmtfs tqftpserv qbootctl q6voiced"
 
   case "$desktop_env" in
     "gnome")

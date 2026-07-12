@@ -2,7 +2,7 @@
 set -e
 
 KERNEL_VERSION="${1:-7.1}"
-REPO="${2:-GengWei1997/kernel-deb}"
+REPO="${2:-3aTup0k/kernel-deb}"
 
 mkdir -p xiaomi-raphael-debs_$KERNEL_VERSION
 

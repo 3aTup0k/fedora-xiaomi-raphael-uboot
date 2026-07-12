@@ -4,7 +4,7 @@ set -e
 SYSTEM_TYPE="${1:?Usage: $0 <system_type> [kernel_version] [desktop_env]}"
 KERNEL_VERSION="${2:-7.1}"
 DESKTOP_ENV="${3:-gnome}"
-KERNEL_REPO="${KERNEL_REPO:-GengWei1997/kernel-deb}"
+KERNEL_REPO="${KERNEL_REPO:-3aTup0k/kernel-deb}"
 
 FEDORA_VERSION="${FEDORA_VERSION:-42}"
 export FEDORA_VERSION KERNEL_REPO
