@@ -16,7 +16,7 @@ on:
       kernel_repo:
         description: 'Kernel repository (owner/repo)'
         required: false
-        default: 'GengWei1997/kernel-deb'
+        default: '3aTup0k/kernel-deb'
   push:
     branches: [main]
     paths: ['scripts/**', 'build.sh', 'build-config.sh']
@@ -35,7 +35,7 @@ jobs:
           TYPES="${{ github.event.inputs.system_types || 'fedora-gnome,fedora-kde,fedora-niri' }}"
           KV="${{ github.event.inputs.kernel_version || '7.1' }}"
           FV="${{ github.event.inputs.fedora_version || '42' }}"
-          KR="${{ github.event.inputs.kernel_repo || 'GengWei1997/kernel-deb' }}"
+          KR="${{ github.event.inputs.kernel_repo || '3aTup0k/kernel-deb' }}"
           M="["; F=true
           IFS=',' read -ra S <<< "$TYPES"
           for s in "${S[@]}"; do
