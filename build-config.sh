@@ -2,7 +2,6 @@ SYSTEM_TYPES="
   fedora-gnome
   fedora-kde
   fedora-niri
-  fedora-phosh
 "
 
 system_config() {
@@ -22,11 +21,6 @@ system_config() {
       echo "IS_DESKTOP=true"
       echo "DESKTOP_ENV=niri"
       ;;
-    "fedora-phosh")
-      echo "IMAGE_SIZE=8G"
-      echo "IS_DESKTOP=true"
-      echo "DESKTOP_ENV=$2"
-      ;;
   esac
 }
 
@@ -44,9 +38,6 @@ get_packages() {
   case "$desktop_env" in
     "gnome")
       echo "$base_packages @gnome-desktop gdm"
-      ;;
-    "phosh"|"phosh-core"|"phosh-full")
-      echo "$base_packages phosh phoc squeekboard gnome-settings-daemon gnome-control-center feedbackd NetworkManager-wwan modemmanager ofono mobile-broadband-provider-info fcitx5 fcitx5-gtk fcitx5-qt fcitx5-chinese-addons"
       ;;
     "kde")
       echo "$base_packages @kde-desktop sddm"

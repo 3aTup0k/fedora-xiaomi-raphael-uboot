@@ -26,9 +26,6 @@ AutomaticLogin=user
 EOF
         chroot rootdir systemctl enable gdm
         ;;
-    "phosh"|"phosh-core"|"phosh-full")
-        chroot rootdir systemctl enable phosh
-        ;;
     "kde")
         mkdir -p rootdir/etc/sddm.conf.d
         cat > rootdir/etc/sddm.conf.d/autologin.conf << 'EOF'

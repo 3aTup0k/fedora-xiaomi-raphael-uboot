@@ -2,13 +2,12 @@
 set -e
 
 SYSTEM_TYPE="${1:?Usage: $0 <system_type> [kernel_version] [desktop_env]}"
-KERNEL_VERSION="${2:-6.18}"
-DESKTOP_ENV="${3:-phosh}"
+KERNEL_VERSION="${2:-7.1}"
+DESKTOP_ENV="${3:-gnome}"
+KERNEL_REPO="${KERNEL_REPO:-GengWei1997/kernel-deb}"
 
-if [[ "$SYSTEM_TYPE" == *"fedora-"* ]]; then
-    FEDORA_VERSION="${FEDORA_VERSION:-42}"
-    export FEDORA_VERSION
-fi
+FEDORA_VERSION="${FEDORA_VERSION:-42}"
+export FEDORA_VERSION KERNEL_REPO
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/build-config.sh"
@@ -23,7 +22,7 @@ sources_config "$SYSTEM_TYPE" > "$TMP_SOURCES_CONFIG"
 while IFS= read -r line; do export "$line"; done < "$TMP_SOURCES_CONFIG"
 rm "$TMP_SOURCES_CONFIG"
 
-export SCRIPT_DIR KERNEL_VERSION DESKTOP_ENV
+export SCRIPT_DIR KERNEL_VERSION DESKTOP_ENV KERNEL_REPO
 export IMAGE_NAME="rootfs.img"
 export IMAGE_UUID="ee8d3593-59b1-480e-a3b6-4fefb17ee7d8"
 export HOSTNAME="xiaomi-raphael"
@@ -37,7 +36,7 @@ echo "[$(date +'%Y-%m-%d %H:%M:%S')] Fedora for Xiaomi Raphael Image Build"
 echo "[$(date +'%Y-%m-%d %H:%M:%S')] =========================================="
 echo "[$(date +'%Y-%m-%d %H:%M:%S')] System:   $SYSTEM_TYPE"
 echo "[$(date +'%Y-%m-%d %H:%M:%S')] Fedora:   $FEDORA_VERSION"
-echo "[$(date +'%Y-%m-%d %H:%M:%S')] Kernel:   $KERNEL_VERSION"
+echo "[$(date +'%Y-%m-%d %H:%M:%S')] Kernel:   $KERNEL_VERSION ($KERNEL_REPO)"
 echo "[$(date +'%Y-%m-%d %H:%M:%S')] Size:     $IMAGE_SIZE"
 [ "$IS_DESKTOP" = "true" ] && echo "[$(date +'%Y-%m-%d %H:%M:%S')] DE:       $DESKTOP_ENV"
 echo "[$(date +'%Y-%m-%d %H:%M:%S')] =========================================="
