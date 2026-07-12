@@ -4,28 +4,25 @@ on:
   workflow_dispatch:
     inputs:
       system_types:
-        description: 'Types (comma-sep: fedora-gnome,fedora-kde,fedora-phosh)'
+        description: 'Types (comma-sep: fedora-gnome,fedora-kde,fedora-niri)'
         required: false
-        default: 'fedora-gnome,fedora-kde,fedora-phosh'
+        default: 'fedora-gnome,fedora-kde,fedora-niri'
       kernel_version:
         required: false
-        default: '6.18'
+        default: '7.1'
       fedora_version:
         required: false
         default: '42'
-      desktop_env:
-        description: 'For Phosh variant'
+      kernel_repo:
+        description: 'Kernel repository (owner/repo)'
         required: false
-        default: 'phosh'
+        default: 'GengWei1997/kernel-deb'
   push:
     branches: [main]
     paths: ['scripts/**', 'build.sh', 'build-config.sh']
 
 permissions:
   contents: write
-
-env:
-  KERNEL_REPO: GengWei1997/kernel-deb
 
 jobs:
   matrix:
@@ -35,15 +32,15 @@ jobs:
     steps:
       - id: gen
         run: |
-          TYPES="${{ github.event.inputs.system_types || 'fedora-gnome,fedora-kde,fedora-phosh' }}"
-          KV="${{ github.event.inputs.kernel_version || '6.18' }}"
+          TYPES="${{ github.event.inputs.system_types || 'fedora-gnome,fedora-kde,fedora-niri' }}"
+          KV="${{ github.event.inputs.kernel_version || '7.1' }}"
           FV="${{ github.event.inputs.fedora_version || '42' }}"
-          DE="${{ github.event.inputs.desktop_env || 'phosh' }}"
+          KR="${{ github.event.inputs.kernel_repo || 'GengWei1997/kernel-deb' }}"
           M="["; F=true
           IFS=',' read -ra S <<< "$TYPES"
           for s in "${S[@]}"; do
             [ "$F" = true ] && F=false || M="$M,"
-            M="$M{\"type\":\"$s\",\"kernel\":\"$KV\",\"fedora\":\"$FV\",\"de\":\"$DE\"}"
+            M="$M{\"type\":\"$s\",\"kernel\":\"$KV\",\"fedora\":\"$FV\",\"repo\":\"$KR\"}"
           done
           M="$M]"
           echo "matrix=$M" >> $GITHUB_OUTPUT
@@ -60,7 +57,7 @@ jobs:
       SYSTEM_TYPE: ${{ matrix.type }}
       KERNEL_VERSION: ${{ matrix.kernel }}
       FEDORA_VERSION: ${{ matrix.fedora }}
-      DESKTOP_ENV: ${{ matrix.de }}
+      KERNEL_REPO: ${{ matrix.repo }}
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update && sudo apt-get install -y qemu-user-static
@@ -80,7 +77,7 @@ jobs:
       - name: Build
         run: |
           chmod +x build.sh
-          sudo FEDORA_VERSION=${{ env.FEDORA_VERSION }} ./build.sh "${{ env.SYSTEM_TYPE }}" "${{ env.KERNEL_VERSION }}" "${{ env.DESKTOP_ENV }}"
+          sudo FEDORA_VERSION=${{ env.FEDORA_VERSION }} KERNEL_REPO=${{ env.KERNEL_REPO }} ./build.sh "${{ env.SYSTEM_TYPE }}" "${{ env.KERNEL_VERSION }}"
 
       - name: Package
         run: |
